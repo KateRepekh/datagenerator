@@ -1,0 +1,41 @@
+{% extends "base_menu.html" %}
+{% block content %}
+<h1>{{ schema.name }}</h1>
+<span style="float: right">
+<form action="" method="post" id="generation_form" enctype="multipart/form-data"
+style="form-inline">
+{% csrf_token %}
+<div class="form-group">
+    <label for="n_rows" class="form-label"></label>
+    <input type="number" class="form-control" id="n_rows" name="n_rows" 
+        value="1000" min="1" required>
+    <button type="submit" class="btn btn-primary">Generate</button>
+</div>
+</form>
+</span>
+{% if schema.dataset_set %}
+<table class="table">
+<thead>
+<tr>
+    <th scope="col">#</th>
+    <th scope="col">Created</th>
+    <th scope="col">Status</th>
+    <th scope="col">Actions</th>
+</tr>
+</thead>
+<tbody>
+    {% for dataset in schema.dataset_set.all %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ dataset.created_at }}</td>
+            <td>{% if dataset.is_ready %}<span class="badge badge-success">Ready</span>
+            {% else %}<div class="badge badge-secondary">Processing</div>{% endif %}</td>
+            <td>{% if dataset.is_ready %}
+            <a href="{% url 'fakecsv:dataset_download' dataset.id %}" download>Download</a>
+            {% endif %}</td>
+        </tr>
+    {% endfor %}
+</tbody>
+</table>
+{% endif %}
+{% endblock %}

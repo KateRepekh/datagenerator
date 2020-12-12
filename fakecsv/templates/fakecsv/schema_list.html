@@ -1,0 +1,32 @@
+{% extends "base_menu.html" %}
+{% block content %}
+<h1>Data Schemas</h1>
+<span style="float: right">
+<a class="btn btn-primary" href="{% url 'fakecsv:schema_create' %}">New schema</a>
+</span>
+{% if schema_list %}
+<table class="table">
+<thead>
+<tr>
+    <th scope="col">#</th>
+    <th scope="col">Title</th>
+    <th scope="col">Modified</th>
+    <th scope="col">Actions</th>
+</tr>
+</thead>
+<tbody>
+    {% for schema in schema_list %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td><a href="{% url 'fakecsv:schema_detail' schema.id %}">{{ schema.name }}</a></td>
+            <td>{{ schema.created_at }}</td>
+            <td>
+                {% comment %}<a href="{% url 'fakecsv:schema_edit' schema.id %}">Edit</a>{% endcomment %}
+                <a href="{% url 'fakecsv:schema_delete' schema.id %}" style="color:red;">Delete</a>
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>
+</table>
+{% endif %}
+{% endblock %}

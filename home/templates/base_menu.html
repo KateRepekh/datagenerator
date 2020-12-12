@@ -1,0 +1,22 @@
+{% extends "base_bootstrap.html" %}
+{% block navbar %}
+<nav class="navbar navbar-light bg-light navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+        <a class="navbar-brand" href="/">{{ settings.APP_NAME }}</a>
+    </div>
+    <ul class="nav navbar-nav mr-auto">
+      <li class="nav-item">
+          <a href="{% url 'fakecsv:schemas' %}">Schemas</a></li>
+    </ul>
+    <ul class="nav navbar-nav ml-auto">
+        {% if user.is_authenticated %}
+        <li class="nav-item">Hello, <em>{{ user.username }}</em></li>
+        <li class="nav-item"><a href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+        <li class="nav-item"><a href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+    </ul>
+  </div>
+</nav>
+{% endblock %}

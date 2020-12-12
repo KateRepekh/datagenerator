@@ -1,0 +1,49 @@
+{% extends "base_menu.html" %}
+
+{% block head %}
+{% load static %}
+<script type="text/javascript" src="{% static 'jquery.formset.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<form action="" method="post" id="upload_form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="submit" class="btn btn-primary float-right" value="Submit">
+    <h5>New Schema</h5>
+    {{ form.as_p}}
+    <h5>Columns</h5>
+    <div class="container">
+    {% for form in column_forms %}
+        <div class="form-group row">
+            {% for field in form.visible_fields %}
+            <div class="col-xs-{% if field == form.name %}3{% else %}2{%endif%}">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <div class="alert alert-danger">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% if column_forms.non_form_errors %}
+        <div class="alert alert-danger">{{ column_forms.non_form_errors }}</div>
+    {% endif %}
+    {{ column_forms.management_form }}
+    </div>
+</form>
+<script type="text/javascript">
+    $(function() {
+        $('.row').formset({
+            addText: 'Add column',
+            deleteText: 'Delete',
+            prefix: '{{ column_forms.prefix }}'
+        });
+    })
+</script>
+{% endblock %}
