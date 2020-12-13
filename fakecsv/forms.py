@@ -30,7 +30,7 @@ class ColumnForm(BootstrapForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data['data_type'] in Column.DATA_TYPES_WITH_RANGE:
+        if cleaned_data.get('data_type') in Column.DATA_TYPES_WITH_RANGE:
             if (cleaned_data['range_start'] is None or
                 cleaned_data['range_end'] is None):
                 raise forms.ValidationError(
@@ -63,7 +63,10 @@ class BaseInlineColumnFormSet(forms.BaseInlineFormSet):
             if self.can_delete and self._should_delete_form(form):
                 continue
             
-            order = form.cleaned_data['order']
+            order = form.cleaned_data.get('order')
+            if order is None:
+                continue
+            
             if order in order_numbers:
                 raise forms.ValidationError(
                     "You can't have duplicate values in Order"
