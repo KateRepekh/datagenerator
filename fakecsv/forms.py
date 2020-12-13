@@ -59,14 +59,14 @@ class BaseInlineColumnFormSet(forms.BaseInlineFormSet):
         for form in self.forms:
             if any(self.errors):
                 return
-            
+
             if self.can_delete and self._should_delete_form(form):
                 continue
-            
+
             order = form.cleaned_data.get('order')
             if order is None:
                 continue
-            
+
             if order in order_numbers:
                 raise forms.ValidationError(
                     "You can't have duplicate values in Order"

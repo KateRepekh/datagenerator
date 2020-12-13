@@ -1,11 +1,8 @@
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import redirect, get_object_or_404
-from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
-
-from uuid import uuid4
 
 from fakecsv.models import Schema, Dataset
 from fakecsv.forms import SchemaForm, ColumnFormSet
@@ -26,7 +23,6 @@ class SchemaDetailView(OwnerDetailView):
         n_rows = int(request.POST['n_rows'])
         schema = get_object_or_404(Schema, pk=pk, owner=self.request.user)
         dataset = Dataset(schema=schema)
-        dataset.file.save('{}.csv'.format(uuid4()), ContentFile(''))
         dataset.save()
         generate_csv.delay(dataset.id, n_rows)
         return redirect(reverse('fakecsv:schema_detail', args=[schema.id]))

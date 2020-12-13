@@ -3,6 +3,7 @@ from string import ascii_lowercase
 from random import randint, choices
 from datetime import date, timedelta
 from functools import partial
+from io import StringIO
 
 from fakecsv.models import Column
 
@@ -13,9 +14,8 @@ class CSVGenerator:
     WORD_SYMBOLS = ascii_lowercase
     MIN_DATE = date(1900, 1, 1)
     DAYS_BETWEEN_DATES_RANGE = (1, 80000)
-    BATCH_SIZE = 10000
-    QUOTING_POLICY = csv.QUOTE_NONNUMERIC
     PHONE_NUMBER_RANGE = (10**7, 10**15)
+    QUOTING_POLICY = csv.QUOTE_NONNUMERIC
 
     def __init__(self, dataset, columns, n_rows):
         self.n_rows = n_rows
@@ -29,9 +29,9 @@ class CSVGenerator:
             Column.DataType.COMPANY: self.generate_word,
             Column.DataType.JOB: self.generate_word,
             Column.DataType.EMAIL: self.generate_email,
-            Column.DataType.INTEGER: self.generate_number,
             Column.DataType.PHONE_NUMBER: self.generate_phone_number,
             Column.DataType.DATE: self.generate_date,
+            Column.DataType.INTEGER: randint,
         }
 
     def generate_item(self, column):
@@ -44,33 +44,25 @@ class CSVGenerator:
 
     def generate(self):
         columns = sorted(self.columns, key=lambda column: column.order)
+        rows = ((self.generate_item(column)
+                 for column in columns)
+                for row in range(self.n_rows))
 
-        with open(self.dataset.file.path, 'w', newline='') as csvfile:
-            csv_writer = csv.writer(
-                csvfile, delimiter=self.dataset.schema.column_separator,
-                quotechar=self.dataset.schema.string_character,
-                quoting=self.QUOTING_POLICY
-            )
-            csv_writer.writerow((column.name for column in columns))
-
-            rows_to_generate = self.n_rows
-            while rows_to_generate > 0:
-                batch_size = min(self.BATCH_SIZE, rows_to_generate)
-                rows_to_generate = rows_to_generate - batch_size
-
-                chunk = ((self.generate_item(column)
-                          for column in columns)
-                         for row in range(batch_size))
-                csv_writer.writerows(chunk)
-
-    def generate_number(self, range_start, range_end):
-        return randint(range_start, range_end)
+        csv_buffer = StringIO()
+        csv_writer = csv.writer(
+            csv_buffer, delimiter=self.dataset.schema.column_separator,
+            quotechar=self.dataset.schema.string_character,
+            quoting=self.QUOTING_POLICY
+        )
+        csv_writer.writerow((column.name for column in columns))
+        csv_writer.writerows(rows)
+        return csv_buffer
 
     def generate_phone_number(self):
-        return self.generate_number(*self.PHONE_NUMBER_RANGE)
+        return randint(*self.PHONE_NUMBER_RANGE)
 
     def generate_word(self):
-        word_length = self.generate_number(*self.WORD_LENGTH_RANGE)
+        word_length = randint(*self.WORD_LENGTH_RANGE)
         return ''.join(choices(self.WORD_SYMBOLS, k=word_length))
 
     def generate_words(self, k):
@@ -83,5 +75,5 @@ class CSVGenerator:
         return "{}@{}.{}".format(*self.generate_words(3))
 
     def generate_date(self):
-        days_passed = self.generate_number(*self.DAYS_BETWEEN_DATES_RANGE)
+        days_passed = randint(*self.DAYS_BETWEEN_DATES_RANGE)
         return self.MIN_DATE + timedelta(days=days_passed)
