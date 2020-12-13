@@ -57,8 +57,12 @@ class BaseInlineColumnFormSet(forms.BaseInlineFormSet):
     def clean(self):
         order_numbers = []
         for form in self.forms:
+            if any(self.errors):
+                return
+            
             if self.can_delete and self._should_delete_form(form):
                 continue
+            
             order = form.cleaned_data['order']
             if order in order_numbers:
                 raise forms.ValidationError(

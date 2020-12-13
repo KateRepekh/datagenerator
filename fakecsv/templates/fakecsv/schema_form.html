@@ -25,11 +25,9 @@
             </div>
             {% endfor %}
         </div>
-        {% for error in form.non_field_errors %}
-            <div class="alert alert-danger">
-                {{ error }}
-            </div>
-        {% endfor %}
+        {% if form.non_field_errors %}
+        <div class="form-group row alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
     {% endfor %}
     {% if column_forms.non_form_errors %}
         <div class="alert alert-danger">{{ column_forms.non_form_errors }}</div>

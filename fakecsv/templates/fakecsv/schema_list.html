@@ -19,7 +19,7 @@
         <tr>
             <th scope="row">{{ forloop.counter }}</th>
             <td><a href="{% url 'fakecsv:schema_detail' schema.id %}">{{ schema.name }}</a></td>
-            <td>{{ schema.created_at }}</td>
+            <td>{{ schema.updated_at }}</td>
             <td>
                 {% comment %}<a href="{% url 'fakecsv:schema_edit' schema.id %}">Edit</a>{% endcomment %}
                 <a href="{% url 'fakecsv:schema_delete' schema.id %}" style="color:red;">Delete</a>
